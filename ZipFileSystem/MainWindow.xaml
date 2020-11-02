@@ -7,6 +7,10 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+        <Button x:Name="OpenButton"
+                    Content="Open"
+                    Margin="16, 16, 0, 0"
+                    FontSize="16"
+                    Click="OpenButton_Click"/>
     </Grid>
 </Window>
