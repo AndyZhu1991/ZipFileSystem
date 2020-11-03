@@ -7,22 +7,23 @@ namespace ZipFileSystem.ZipTree
 {
     class FileTreeNode
     {
-        public ZipArchiveEntry mNodeEntry;
-        public List<FileTreeNode> mChildren;
+        public IZipEntry mNodeEntry;
+        public List<FileTreeNode> mChildren = new List<FileTreeNode>();
         public FileTreeNode mParent;
 
         public FileTreeNode(ZipArchiveEntry entry)
         {
+            mNodeEntry = new ZipEntry(entry);
+        }
+
+        public FileTreeNode(IZipEntry entry)
+        {
             mNodeEntry = entry;
-            if (IsDirectory())
-            {
-                mChildren = new List<FileTreeNode>();
-            }
         }
 
         public FileTreeNode FindByName(string name)
         {
-            if (mNodeEntry != null && FullName() == name)
+            if (FullName().Equals(name))
             {
                 return this;
             }
@@ -43,45 +44,17 @@ namespace ZipFileSystem.ZipTree
             }
         }
 
-        public FileTreeNode FindByEntry(ZipArchiveEntry entry)
-        {
-            if (mNodeEntry == entry)
-            {
-                return this;
-            }
-            else
-            {
-                foreach (FileTreeNode child in mChildren)
-                {
-                    var finded = child.FindByEntry(entry);
-                    if (finded != null)
-                    {
-                        return finded;
-                    }
-                }
-                return null;
-            }
-        }
-
         public bool IsDirectory()
         {
-            if (mNodeEntry == null)
-            {
-                return true;
-            }
             return mNodeEntry.FullName.EndsWith("/");
         }
 
         private string FullName()
         {
-            if (mNodeEntry == null)
-            {
-                return "";
-            }
             return mNodeEntry.FullName;
         }
 
-        public bool Insert(ZipArchiveEntry entry)
+        public bool Insert(IZipEntry entry)
         {
             if (IsDirectory() && entry.FullName.StartsWith(FullName()))
             {
@@ -101,6 +74,12 @@ namespace ZipFileSystem.ZipTree
             {
                 return false;
             }
+        }
+
+        public static FileTreeNode CreateRootNode()
+        {
+            IZipEntry entry = new CustomZipEntry(0, "/", DateTimeOffset.FromFileTime(0), 0, "/", null);
+            return new FileTreeNode(entry);
         }
     }
 }

@@ -38,12 +38,12 @@ namespace ZipFileSystem
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
+            Dokan.Unmount(MOUNT_POINT);
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
         {
             OpenZipFile();
-            Dokan.Unmount(MOUNT_POINT);
         }
 
         private async void OpenZipFile()
@@ -65,11 +65,11 @@ namespace ZipFileSystem
                 ZipArchive zipArchive = ZipFile.OpenRead(filename);
                 IList<ZipArchiveEntry> entries = zipArchive.Entries.ToList();
 
-                mRoot = new FileTreeNode(null);
+                mRoot = FileTreeNode.CreateRootNode();
                 var sorted = entries.OrderBy(entry => entry.FullName);
                 foreach (ZipArchiveEntry entry in entries)
                 {
-                    mRoot.Insert(entry);
+                    mRoot.Insert(new ZipEntry(entry));
                 }
 
                 MountDokan();
