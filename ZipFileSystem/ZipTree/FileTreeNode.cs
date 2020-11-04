@@ -21,6 +21,11 @@ namespace ZipFileSystem.ZipTree
             mNodeEntry = entry;
         }
 
+        /// <summary>
+        /// Find a node by name.
+        /// </summary>
+        /// <param name="name">Standard full name used in this project, look IZipEntry.FullName</param>
+        /// <returns>The FileTreeNode instance or null</returns>
         public FileTreeNode FindByName(string name)
         {
             if (FullName().Equals(name))

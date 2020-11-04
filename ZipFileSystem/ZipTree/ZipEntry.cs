@@ -79,12 +79,20 @@ namespace ZipFileSystem.ZipTree
     {
         public long CompressedLength { get; }
 
+        /// <summary>
+        /// Always starts with "/", if it is a directory, end with "/".
+        /// For example: "/path/to/file.txt" or "/path/to/dir/"
+        /// </summary>
         public string FullName { get; }
 
         public DateTimeOffset LastWriteTime { get; }
 
         public long Length { get; }
 
+        /// <summary>
+        /// The name of file or directory, not include any "/".
+        /// But for root directory, the name is "/".
+        /// </summary>
         public string Name { get; }
 
         public Stream Open();

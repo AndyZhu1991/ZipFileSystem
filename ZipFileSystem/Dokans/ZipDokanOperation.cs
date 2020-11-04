@@ -4,11 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.AccessControl;
-using System.Text;
 using ZipFileSystem.ZipTree;
 using FileAccess = DokanNet.FileAccess;
 using static DokanNet.FormatProviders;
-using System.Runtime.InteropServices;
 using System.Linq;
 
 namespace ZipFileSystem.Dokans
@@ -201,7 +199,7 @@ namespace ZipFileSystem.Dokans
                 Attributes = info.IsDirectory ? FileAttributes.Directory : FileAttributes.ReadOnly,
                 CreationTime = DefaultCreationTime,
                 LastAccessTime = DefaultLastAccessTime,
-                LastWriteTime = new DateTime(fileNode.LastWriteTime.Ticks),
+                LastWriteTime = fileNode.LastWriteTime.DateTime,
                 Length = fileNode.Length,
             };
             return Trace(nameof(GetFileInformation), fileName, info, DokanResult.Success);
@@ -382,9 +380,9 @@ namespace ZipFileSystem.Dokans
                 .Select(finfo => new FileInformation
                 {
                     Attributes = finfo.IsDirectory() ? FileAttributes.Directory : FileAttributes.ReadOnly,
-                    CreationTime = new DateTime(0),
-                    LastAccessTime = DefaultCreationTime,
-                    LastWriteTime = DefaultLastAccessTime,
+                    CreationTime = DefaultCreationTime,
+                    LastAccessTime = DefaultLastAccessTime,
+                    LastWriteTime = finfo.mNodeEntry.LastWriteTime.DateTime,
                     Length = finfo.mNodeEntry.Length,
                     FileName = finfo.mNodeEntry.Name
                 }).ToArray();
