@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ZipFileSystem": {
+      "commandName": "Project",
+      "commandLineArgs": "D:\\Downloads\\openjdk-14.0.2_windows-x64_bin.zip"
+    }
+  }
+}

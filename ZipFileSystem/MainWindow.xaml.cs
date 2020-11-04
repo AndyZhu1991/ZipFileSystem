@@ -1,23 +1,5 @@
-﻿using DokanNet;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using ZipFileSystem.Dokans;
-using ZipFileSystem.ZipTree;
 
 namespace ZipFileSystem
 {
@@ -26,10 +8,6 @@ namespace ZipFileSystem
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static char MOUNT_POINT = 'z';
-
-        private FileTreeNode mRoot;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -38,7 +16,7 @@ namespace ZipFileSystem
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            Dokan.Unmount(MOUNT_POINT);
+            CurrentApplication().Shutdown();
         }
 
         private void OpenButton_Click(object sender, RoutedEventArgs e)
@@ -46,7 +24,7 @@ namespace ZipFileSystem
             OpenZipFile();
         }
 
-        private async void OpenZipFile()
+        private void OpenZipFile()
         {
             Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog
             {
@@ -62,30 +40,13 @@ namespace ZipFileSystem
             {
                 // Open document
                 string filename = dlg.FileName;
-                ZipArchive zipArchive = ZipFile.OpenRead(filename);
-                IList<ZipArchiveEntry> entries = zipArchive.Entries.ToList();
-
-                mRoot = FileTreeNode.CreateRootNode();
-                var sorted = entries.OrderBy(entry => entry.FullName);
-                foreach (ZipArchiveEntry entry in entries)
-                {
-                    mRoot.Insert(new ZipEntry(entry));
-                }
-
-                MountDokan();
+                CurrentApplication().MountZipFile(filename);
             }
         }
 
-        private void MountDokan()
+        private App CurrentApplication()
         {
-            Thread thread1 = new Thread(this.MountWorker);
-            thread1.Start();
-        }
-
-        private void MountWorker()
-        {
-            var dk = new ZipDokanOperation(mRoot);
-            dk.Mount(MOUNT_POINT + ":\\", DokanOptions.DebugMode | DokanOptions.StderrOutput);
+            return (App)Application.Current;
         }
     }
 }

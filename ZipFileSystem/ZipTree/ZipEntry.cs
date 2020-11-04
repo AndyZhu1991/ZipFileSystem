@@ -28,7 +28,11 @@ namespace ZipFileSystem.ZipTree
 
         public Stream Open()
         {
-            return mEntry.Open();
+            var zipStream = mEntry.Open();
+            var memStream = new MemoryStream();
+            zipStream.CopyTo(memStream);
+            zipStream.Dispose();
+            return memStream;
         }
 
         private string GetName()
