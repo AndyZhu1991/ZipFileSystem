@@ -244,24 +244,40 @@ namespace ZipFileSystem.Dokans
 
         public NtStatus ReadFile(string fileName, byte[] buffer, out int bytesRead, long offset, IDokanFileInfo info)
         {
-            if (info.Context == null) // memory mapped read
+            Stream stream;
+
+            if (info.Context == null)
             {
                 var fileNode = FindFileNode(fileName, info);
-                using (var stream = fileNode.mNodeEntry.Open())
-                {
-                    stream.Position = offset;
-                    bytesRead = stream.Read(buffer, 0, buffer.Length);
-                }
+
+                stream = fileNode.mNodeEntry.Open();
+
+                // not sure if we can do this
+                info.Context = stream;
             }
-            else // normal read
+            else
             {
-                var stream = info.Context as Stream;
-                lock (stream) //Protect from overlapped read
+                stream = info.Context as Stream;
+            }
+
+            lock (stream) //Protect from overlapped read
+            {
+                if (stream.CanSeek)
                 {
                     stream.Position = offset;
-                    bytesRead = stream.Read(buffer, 0, buffer.Length);
                 }
+                else
+                {
+                    if (offset > 0)
+                    {
+                        var discard = new byte[offset];
+                        stream.Read(discard, 0, (int)offset);
+                    }
+                }
+
+                bytesRead = stream.Read(buffer, 0, buffer.Length);
             }
+
             return Trace(nameof(ReadFile), fileName, info, DokanResult.Success, "out " + bytesRead.ToString(),
                 offset.ToString());
         }
