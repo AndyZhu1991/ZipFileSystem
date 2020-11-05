@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
@@ -68,6 +69,7 @@ namespace ZipFileSystem
             Thread thread1 = new Thread(this.MountWorker);
             thread1.Start();
             taskbarIcon = (TaskbarIcon)FindResource("NotifyIcon");
+            Process.Start("explorer.exe", $"{MOUNT_POINT}:\\");
         }
 
         private void MountWorker()
