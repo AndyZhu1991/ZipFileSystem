@@ -28,7 +28,7 @@ namespace ZipFileSystem.ZipTree
         /// <returns>The FileTreeNode instance or null</returns>
         public FileTreeNode FindByName(string name)
         {
-            if (FullName().Equals(name))
+            if (IsSamePath(FullName(), name))
             {
                 return this;
             }
@@ -40,6 +40,10 @@ namespace ZipFileSystem.ZipTree
             {
                 foreach (FileTreeNode child in mChildren)
                 {
+                    if (IsSamePath(name, child.FullName()))
+                    {
+                        return child;
+                    }
                     if (name.StartsWith(child.FullName()))
                     {
                         return child.FindByName(name);
@@ -122,6 +126,20 @@ namespace ZipFileSystem.ZipTree
             {
                 return false;
             }
+        }
+
+
+        private static bool IsSamePath(string path1, string path2)
+        {
+            return RemoveEnddingSlash(path1).Equals(RemoveEnddingSlash(path2));
+        }
+
+        private static string RemoveEnddingSlash(string path)
+        {
+            if (path.EndsWith("/"))
+                return path.Substring(0, path.Length - 1);
+            else
+                return path;
         }
 
         public static FileTreeNode CreateRootNode()
