@@ -18,7 +18,7 @@ namespace ZipFileSystem.ZipTree
 
         public long CompressedLength => mEntry.CompressedLength;
 
-        public string FullName => "/" + mEntry.FullName;
+        public string FullName => GetFullName();
 
         public DateTimeOffset LastWriteTime => mEntry.LastWriteTime;
 
@@ -33,6 +33,18 @@ namespace ZipFileSystem.ZipTree
             zipStream.CopyTo(memStream);
             zipStream.Dispose();
             return memStream;
+        }
+
+        public string GetFullName()
+        {
+            if (mEntry.FullName.StartsWith('/'))
+            {
+                return mEntry.FullName;
+            }
+            else
+            {
+                return "/" + mEntry.FullName;
+            }
         }
 
         private string GetName()
