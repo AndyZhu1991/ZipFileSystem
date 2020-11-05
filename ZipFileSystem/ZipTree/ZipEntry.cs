@@ -9,7 +9,11 @@ namespace ZipFileSystem.ZipTree
 {
     class ZipEntry : IZipEntry
     {
+        private static Object lo = new Object();
+
         private ZipArchiveEntry mEntry;
+
+        private byte[] Content;
 
         public ZipEntry(ZipArchiveEntry entry)
         {
@@ -28,11 +32,24 @@ namespace ZipFileSystem.ZipTree
 
         public Stream Open()
         {
-            var zipStream = mEntry.Open();
-            var memStream = new MemoryStream();
-            zipStream.CopyTo(memStream);
-            zipStream.Dispose();
-            return memStream;
+            System.Diagnostics.Trace.WriteLine("Opening: " + FullName);
+            ReadContentIfNeed();
+            return new MemoryStream(Content);
+        }
+
+        private void ReadContentIfNeed()
+        {
+            if (Content == null)
+            {
+                lock (lo)
+                {
+                    using (var zipStream = mEntry.Open())
+                    {
+                        Content = new byte[Length];
+                        zipStream.Read(Content, 0, (int)Length);
+                    }
+                }
+            }
         }
 
         public string GetFullName()

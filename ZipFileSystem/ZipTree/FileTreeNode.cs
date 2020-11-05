@@ -131,7 +131,7 @@ namespace ZipFileSystem.ZipTree
 
         private static bool IsSamePath(string path1, string path2)
         {
-            return RemoveEnddingSlash(path1).Equals(RemoveEnddingSlash(path2));
+            return RemoveEnddingSlash(path1).Equals(RemoveEnddingSlash(path2), StringComparison.OrdinalIgnoreCase);
         }
 
         private static string RemoveEnddingSlash(string path)
