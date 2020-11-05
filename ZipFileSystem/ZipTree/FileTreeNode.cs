@@ -59,6 +59,51 @@ namespace ZipFileSystem.ZipTree
             return mNodeEntry.FullName;
         }
 
+        private bool CreateNode(IZipEntry entry)
+        {
+            // create internal node
+            var currentNode = this;
+            var pathBuilder = new StringBuilder(FullName());
+            var nameBuilder = new StringBuilder();
+
+            foreach (char c in entry.FullName.Substring(FullName().Length))
+            {
+                pathBuilder = pathBuilder.Append(c);
+                if (c == '/')
+                {
+                    var dirEntry = new CustomZipEntry(
+                        0,
+                        pathBuilder.ToString(),
+                        entry.LastWriteTime,
+                        0,
+                        nameBuilder.ToString(),
+                        null
+                    );
+
+                    var node = new FileTreeNode(dirEntry);
+                    currentNode.mChildren.Add(node);
+                    node.mParent = currentNode;
+                    currentNode = node;
+
+                    nameBuilder = nameBuilder.Clear();
+                }
+                else
+                {
+                    nameBuilder = nameBuilder.Append(c);
+                }
+            }
+
+            // create leaf node for the zip entry
+            if (!entry.FullName.EndsWith('/'))
+            {
+                var node = new FileTreeNode(entry);
+                currentNode.mChildren.Add(node);
+                node.mParent = currentNode;
+            }
+
+            return true;
+        }
+
         public bool Insert(IZipEntry entry)
         {
             if (IsDirectory() && entry.FullName.StartsWith(FullName()))
@@ -70,10 +115,8 @@ namespace ZipFileSystem.ZipTree
                         return true;
                     }
                 }
-                var node = new FileTreeNode(entry);
-                mChildren.Add(node);
-                node.mParent = this;
-                return true;
+
+                return CreateNode(entry);
             }
             else
             {
